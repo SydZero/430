@@ -8,30 +8,28 @@ int main(){
     int nums[num];
     int curr;
     int max = INT32_MIN;
+    set<int> numset;
     
     for(int i = 0; i < num; i++){
         cin >> curr;
         nums[i] = curr;
-    }
-
-    int pivots = num;
-    for(int i = 0; i < num; i++){
-        curr = nums[i];
         if(curr > max){
             max = curr;
-            for(int j = i + 1; j < num; j++){
-                if(nums[j] < nums[i]){
-                    pivots--;
-                    break;
-                }
-            }
-        } else {
-            pivots--;
+            numset.emplace(curr);
         }
         
     }
+
+    int min = INT32_MAX;
+    for(int j = num - 1; j >= 0; j--){
+        if(nums[j] < min){
+            min = nums[j];
+        } else {
+            numset.erase(nums[j]);
+        }
+    }
     
-    cout << pivots << endl;
+    cout << numset.size() << endl;
 
     return 0;
 }
