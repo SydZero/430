@@ -12,6 +12,19 @@ struct node{
     node* under;
 };
 
+void print_stacks(vector<node> stacks){
+    for(int i = 0; i < stacks.size(); i++){
+        cout << "stack " << i + 1 << ": " << stacks.at(i).under << " ";
+        node* curr = stacks.at(i).under;
+        while(curr){
+            cout << curr->top << " ";
+            curr = curr->under;
+        }
+        cout << endl;
+    }
+    cout << "------------" << endl;
+}
+
 int main(){
 
     std::ios::sync_with_stdio(false);
@@ -37,16 +50,18 @@ int main(){
                 temp_node.under = nullptr;
                 
             } else {
-                temp_node.under = &nums.at(i);
+                temp_node.under = &nums.at(v);
             }
-            temp_node.top = i;
+            temp_node.top = i + 1;
+            nums.push_back(temp_node);
         } else if(ins == 'b'){
             cout << nums.at(v).top << endl;
-            nums.at(i) = *nums.at(v).under;
+            nums.push_back(*nums.at(v).under);
         } else if(ins == 'c'){
             set<int> unique;
             int w;
             cin >> w;
+            w--;
             unique.insert(nums.at(v).top);
             unique.insert(nums.at(w).top);
             node* curr = nums.at(v).under;
@@ -61,7 +76,11 @@ int main(){
                 curr = curr->under;
             }
             cout << unique.size() << endl;
+            temp_node.under = &nums.at(v);
+            temp_node.top = i + 1;
+            nums.push_back(temp_node);
         }
+        print_stacks(nums);
 
     }
 
