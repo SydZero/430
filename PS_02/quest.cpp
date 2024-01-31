@@ -31,22 +31,20 @@ int main(){
         } else if(instruction == "query"){
             int gold = 0;
             cin >> x;
-            multiset<pair<int, int>, mycomp>::iterator e = quests.begin();
-            bool del = false;
-            for(auto i = quests.begin(); i != quests.end(); i++){
-                if(del)
-                    quests.erase(e);
-                del = false;
+            multiset<pair<int, int>, mycomp>::iterator it;
+            for(auto i = quests.begin(); i != quests.end();){
                 //cout << endl << "Query: energy left=" << x << " energyreq=" << i->first << " gold=" << i->second << " goldtot=" << gold <<endl;
                 if(i->first <= x){ 
                     x -= i->first;
                     gold += i->second;
-                    del = true;
-                    e = i;
+                    it = i;
+                    i++;
+                    quests.erase(it);
+                } else {
+                    i++;
                 }
+
             }
-            if(del)
-                quests.erase(e);
             cout << gold << endl;
         }
     }
