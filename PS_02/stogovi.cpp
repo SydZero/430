@@ -12,10 +12,15 @@ struct node{
     node* under;
 };
 
-void print_stacks(vector<node> stacks){
+bool DEBUG = false;
+
+void print_stacks(vector<node*> stacks){
+    if(!DEBUG){
+        return;
+    }
     for(int i = 0; i < stacks.size(); i++){
-        cout << "stack " << i + 1 << ": " << stacks.at(i).under << " ";
-        node* curr = stacks.at(i).under;
+        cout << "stack " << i << ": ";
+        node* curr = stacks.at(i);
         while(curr){
             cout << curr->top << " ";
             curr = curr->under;
@@ -23,6 +28,16 @@ void print_stacks(vector<node> stacks){
         cout << endl;
     }
     cout << "------------" << endl;
+}
+
+void print_set(set<int> vals){
+    if(vals.empty()){
+        return;
+    }
+    for(int str: vals){
+        cout << str << " " ;
+    }
+    cout << endl;
 }
 
 int main(){
@@ -35,7 +50,8 @@ int main(){
     cin >> n;
 
     //some data structure, not vec of stacks
-    vector<node> nums;
+    vector<node*> nums;
+    nums.push_back(nullptr);
 
     char ins;
 
@@ -43,41 +59,35 @@ int main(){
         cin >> ins;
         int v;
         cin >> v;
-        v--;
-        node temp_node;
+        node* temp_node = new node();
         if(ins == 'a'){
-            if(v == -1){
-                temp_node.under = nullptr;
-                
-            } else {
-                temp_node.under = &nums.at(v);
-            }
-            temp_node.top = i + 1;
+            temp_node->under = nums.at(v);
+            temp_node->top = i + 1;
             nums.push_back(temp_node);
         } else if(ins == 'b'){
-            cout << nums.at(v).top << endl;
-            nums.push_back(*nums.at(v).under);
+            cout << nums.at(v)->top << endl;
+            nums.push_back(nums.at(v)->under);
         } else if(ins == 'c'){
             set<int> unique;
             int w;
             cin >> w;
-            w--;
-            unique.insert(nums.at(v).top);
-            unique.insert(nums.at(w).top);
-            node* curr = nums.at(v).under;
+            
+            node* curr = nums.at(v);
             while(curr){
                 unique.insert(curr->top);
                 curr = curr->under;
             }
-            unique.insert(nums.at(w).top);
-            curr = nums.at(w).under;
+            
+            curr = nums.at(w);
+            int count = 0;
             while(curr){
-                unique.insert(curr->top);
+                if(unique.find(curr->top) != unique.end()){
+                    count++;
+                }
                 curr = curr->under;
             }
-            cout << unique.size() << endl;
-            temp_node.under = &nums.at(v);
-            temp_node.top = i + 1;
+            cout << count << endl;
+            temp_node = nums.at(v);
             nums.push_back(temp_node);
         }
         print_stacks(nums);
