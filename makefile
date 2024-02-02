@@ -5,7 +5,7 @@ FILE ?= "*"
 
 run: $(FILE).cpp
 	rm -f out.txt
-	$(CXX) $(CXXFLAGS) $(FILE).cpp
+	$(CXX) $(FLAGS) $(FILE).cpp
 	./a.out >> out.txt
 	rm -f a.out
 

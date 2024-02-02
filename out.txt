@@ -1,4 +1,5 @@
-2
-2
-8
-8
+Investment: cost=1000000000 profit=1 currdays=2000000000 mindays=9223372036854775807
+    new min_days:2000000000
+Investment: cost=1000000000 profit=1 currdays=1500000000 mindays=2000000000
+    new min_days:1500000000
+1500000000

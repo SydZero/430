@@ -8,19 +8,17 @@ using namespace std;
 // singly linked list but make it gross
 
 struct node{
-    int top;
+    long long top;
     node* under;
+    long long num_below;
 };
 
-bool DEBUG = false;
+bool DEBUG = true;
 
-void print_stacks(vector<node*> stacks){
-    if(!DEBUG){
-        return;
-    }
-    for(int i = 0; i < stacks.size(); i++){
+void print_stacks(node* stacks[], long long n){
+    for(long long i = 0; i <= n + 1; i++){
         cout << "stack " << i << ": ";
-        node* curr = stacks.at(i);
+        node* curr = stacks[i];
         while(curr){
             cout << curr->top << " ";
             curr = curr->under;
@@ -30,67 +28,65 @@ void print_stacks(vector<node*> stacks){
     cout << "------------" << endl;
 }
 
-void print_set(set<int> vals){
-    if(vals.empty()){
-        return;
-    }
-    for(int str: vals){
-        cout << str << " " ;
-    }
-    cout << endl;
-}
-
 int main(){
 
     std::ios::sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
 
-    int n;
+    long long n;
     cin >> n;
 
     //some data structure, not vec of stacks
-    vector<node*> nums;
-    nums.push_back(nullptr);
+    node* nums[n+1];
+    nums[0] = nullptr;
 
     char ins;
 
-    for(int i = 0; i < n; i++){
+    for(long long i = 1; i <= n; i++){
         cin >> ins;
-        int v;
+        long long v;
         cin >> v;
         node* temp_node = new node();
         if(ins == 'a'){
-            temp_node->under = nums.at(v);
-            temp_node->top = i + 1;
-            nums.push_back(temp_node);
+            temp_node->under = nums[v];
+            temp_node->top = i;
+            if(nums[v] == nullptr){
+                temp_node->num_below = 1;
+            } else {
+                temp_node->num_below = temp_node->under->num_below + 1;
+            }
+            nums[i] = temp_node;
         } else if(ins == 'b'){
-            cout << nums.at(v)->top << endl;
-            nums.push_back(nums.at(v)->under);
+            cout << nums[v]->top << endl;
+            nums[i] = nums[v]->under;
         } else if(ins == 'c'){
             set<int> unique;
-            int w;
+            long long w;
             cin >> w;
             
-            node* curr = nums.at(v);
-            while(curr){
-                unique.insert(curr->top);
-                curr = curr->under;
-            }
-            
-            curr = nums.at(w);
-            int count = 0;
-            while(curr){
-                if(unique.find(curr->top) != unique.end()){
-                    count++;
+            node* currv = nums[v];
+            node* currw = nums[w];
+
+            //look through each until ptrs same or nullptr
+            while(currv != nullptr && currw != nullptr){
+                //cout << "compare: " <<  currv->top << " " << currw->top << endl;
+                if(currv == currw){
+                    cout << currv->num_below << endl;
+                    break;
+                } else if(currv->top > currw->top){
+                    currv = currv->under;
+                } else {
+                    currw = currw->under;
                 }
-                curr = curr->under;
             }
-            cout << count << endl;
-            temp_node = nums.at(v);
-            nums.push_back(temp_node);
+            temp_node = nums[v];
+            nums[i] = temp_node;
         }
-        print_stacks(nums);
+
+        // if(DEBUG){
+        //     print_stacks(nums, i - 1);
+        // }
 
     }
 

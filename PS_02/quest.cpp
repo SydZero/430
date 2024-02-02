@@ -21,29 +21,23 @@ int main(){
     int e, g, x;
 
     cin >> n;
-    multiset<pair<int, int>, mycomp> quests;
+    multiset<pair<long long, long long>, mycomp> quests;
     string instruction; 
-    for(int i = 0; i < n; i++){
+    for(long long i = 0; i < n; i++){
         cin >> instruction;
         if(instruction == "add"){
             cin >> e >> g;
             quests.insert({e, g});
         } else if(instruction == "query"){
-            int gold = 0;
+            long long gold = 0;
             cin >> x;
-            multiset<pair<int, int>, mycomp>::iterator it;
-            for(auto i = quests.begin(); i != quests.end();){
+            multiset<pair<long long, long long>, mycomp>::iterator i = quests.lower_bound({x, LONG_LONG_MAX});
+            while(x > 0 && i != quests.end()){
                 //cout << endl << "Query: energy left=" << x << " energyreq=" << i->first << " gold=" << i->second << " goldtot=" << gold <<endl;
-                if(i->first <= x){ 
-                    x -= i->first;
-                    gold += i->second;
-                    it = i;
-                    i++;
-                    quests.erase(it);
-                } else {
-                    i++;
-                }
-
+                x -= i->first;
+                gold += i->second;
+                quests.erase(i);
+                i = quests.lower_bound({x, LONG_LONG_MAX});
             }
             cout << gold << endl;
         }
