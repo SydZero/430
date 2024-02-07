@@ -4,6 +4,7 @@ using namespace std;
 struct team {
     long long solved;
     long long penalty;
+    bool above;
 };
 
 int main(){
@@ -14,7 +15,7 @@ int main(){
     team* teams[n];
 
     for(long long i = 0; i < n; i++){
-        teams[i] = new team{0, 0};
+        teams[i] = new team{0, 0, 0};
     }
 
     for(long long i = 0; i < m; i++){
@@ -22,37 +23,40 @@ int main(){
         
         cin >> team >> p;
         team--;
+        //check here
+
         teams[team]->solved++;
         teams[team]->penalty += p;
-        // cout << "FLAG1" << endl;
+
+        //team 1 updated
         if(team == 0){
-            // cout << "FLAG2" << endl;
+            //checking every item in above list
             for(long long j = 0; j < above.size(); j++){
                 if(above.at(j)->solved < teams[0]->solved){
                     // cout << "FLAG8" << endl;
+                    above.at(j)->above = false;
                     swap(above.at(j), above.at(above.size() - 1));
                     above.pop_back();
                     j--;
-                } else if (above.at(j)->solved == teams[0]->solved && above.at(j)->penalty > teams[0]->penalty){
+                } else if (above.at(j)->solved == teams[0]->solved && above.at(j)->penalty >= teams[0]->penalty){
                     //cout << "FLAG9" << endl;
+                    above.at(j)->above = false;
                     swap(above.at(j), above.at(above.size() - 1));
                     above.pop_back();
                     j--;
                 }
-                // cout << "FLAG5" << endl;
             }
         } else {
-            // cout << "FLAG3" << endl;
-            if(teams[team]->solved == teams[0]->solved + 1){
+            // not team 1, only inserted when solved is equal with lower penalty or exactly 1 over, more than that its already there
+            if(!teams[team]->above && teams[team]->solved == teams[0]->solved + 1){
+                teams[team]->above = true;
                 above.push_back(teams[team]);
-            } else if(teams[team]->solved == teams[0]->solved && teams[team]->penalty < teams[0]->penalty){
+            } else if(!teams[team]->above && teams[team]->solved == teams[0]->solved && teams[team]->penalty < teams[0]->penalty){
+                teams[team]->above = true;
                 above.push_back(teams[team]);
             }
-            //cout << "FLAG6" << endl;
         }
         cout << above.size() + 1 << endl;
-        //cout << "FLAG7" << endl;
-
     }
     return 0;
 }

@@ -2,8 +2,13 @@
 using namespace std;
 
 int main(){
-    int a, b;
-    int sa, sb;
+    long long a, b;
+    long long sa, sb;
+
+    std::ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
 
     while(true){
         cin >> a >> b;
@@ -13,10 +18,10 @@ int main(){
         }
         sa = 0;
         sb = 0;
-        int aog = a;
-        int bog = b;
+        long long aog = a;
+        long long bog = b;
 
-        m.insert({a, sa});
+        m[a] = sa;
         while(a > 1){         
             sa++;
             if(a % 2 == 0){
@@ -24,10 +29,10 @@ int main(){
             } else {
                 a = (3 * a) + 1;
             }
-            m.insert({a, sa});
+            m[a] = sa;
             
         }
-        m.insert({a, sa});
+
         auto afound = m.begin();
         while(b >= 1){
             afound = m.find(b);

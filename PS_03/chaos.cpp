@@ -63,7 +63,9 @@ int main(){
     node* train[n];
     vector<node*> segments;
 
-    long long chaos = 0;
+    long long curr_chaos = 0;
+    long long unround_chaos = 0;
+    long long max_chaos = 0;
 
     for(int i = 0; i < n; i++){
         cin >> p[i];
@@ -80,42 +82,38 @@ int main(){
         train[i]->total = total;
     }
 
-    segments.push_back(train[0]);
+    long long curr;
+    long long segs = 1;
+    unround_chaos = train[0]->total;
+    curr_chaos = _round(train[0]->total);
+    max_chaos = curr_chaos;
 
-    int curr;
-    chaos = _round(train[0]->total);
-
-    for(int i = 0; i < n; i++){
+    for(long long i = 0; i < n; i++){
         cin >> curr;
         curr--;
         
         if(train[curr]->next){
-            segments.push_back(train[curr]->next);
+            segs++;
             train[curr]->next->prev = nullptr;
         }
         if(train[curr]->prev){
             train[curr]->prev->next = nullptr;
+        } else {
+            segs--;
         }
+
+        curr_chaos = _round(unround_chaos - train[curr]->total) + _round(train[curr]->total - train[curr]->value);
+
+        unround_chaos -= train[curr]->value;
+
+
+
         dec(train[curr], train[curr]->total);
+        
 
-        train[curr]->del = true;
-
-        long long temp_tot = 0;
-
-        for(long long j = 0; j < segments.size(); j++){
-            if(segments.at(j)->del == true){
-                swap(segments.at(j), segments.at(segments.size() - 1));
-                segments.pop_back();
-                j--;
-                continue;
-            }
-              
-            temp_tot += _round(segments.at(j)->total);
-        }
-
-        chaos = max(chaos, temp_tot * (long long)(segments.size()));
+        max_chaos = max(max_chaos, curr_chaos * segs);
     } 
-    cout << chaos << endl;
+    cout << max_chaos << endl;
     
 
     return 0;

@@ -66,7 +66,6 @@ void node_union(node* p, node* q){
     parq->sum += parp->sum;
     parq->children.insert(parp->children.begin(), parp->children.end());
     parq->children.insert(parp);
-    //cout << parq->count << endl;
 }
 
 void move_node(node* p, node* q){
@@ -136,7 +135,6 @@ int main(){
     for(long long i = 0; i < n; i++){
         tree[i] = new node(i + 1);
     }
-    //print_tree(tree, n);
     long long ins, p, q;
     for(long long i = 0; i < m; i++){
         cin >> ins;
