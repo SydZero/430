@@ -47,6 +47,8 @@ node* parent(node* p){
     if(p != p->parent){
         node* prent = parent(p->parent);
         p->parent = prent;
+        p->count = 1;
+        p->sum = p->value;
         return prent;
     }
     return p;
@@ -66,6 +68,7 @@ void node_union(node* p, node* q){
     parq->sum += parp->sum;
     parq->children.insert(parp->children.begin(), parp->children.end());
     parq->children.insert(parp);
+    //cout << parq->count << endl;
 }
 
 void move_node(node* p, node* q){
@@ -76,45 +79,37 @@ void move_node(node* p, node* q){
         return;
     } 
 
-    node* new_rt = nullptr;
+    node* new_parent = nullptr;
 
     if(parp == p){
         if(!p->children.empty()){
-            new_rt = *(p->children.begin());
-            p->children.erase(new_rt);
-            new_rt->parent = new_rt;
-            new_rt->count = p->count - 1;
-            new_rt->sum = p->sum - p->value;
+            new_parent = *(p->children.begin());
+            p->children.erase(new_parent);
+            new_parent->parent = new_parent;
+            new_parent->count = p->count - 1;
+            new_parent->sum = p->sum - p->value;
         }
     } else {
-        new_rt = parp;
-        node* curr = p->parent;
-        node* next;
-        while(curr != parp){
-            next = curr->parent;
-            curr->children.clear();
-            curr->count = 1;
-            curr->sum -= curr->value;
-            curr->parent = parp;
-            curr = next;
-        }
-        new_rt->children.erase(p);
-        new_rt->count--;
-        new_rt->sum -= p->value;
+        
+        new_parent = parp;
+        new_parent->children.erase(p);
+        new_parent->count--;
+        new_parent->sum -= p->value;
     }
 
-    if(new_rt){
+
+    if(new_parent != nullptr){
         for(auto i = p->children.begin(); i != p->children.end(); i++){
-            (*i)->parent = new_rt;
-            (*i)->children.erase(new_rt);
-            new_rt->children.insert(*i);
+            (*i)->parent = new_parent;
+            (*i)->children.clear();
+            new_parent->children.insert(*i);
         }
-        p->children.clear();
     }
 
-    p->parent = parq;
+    p->children.clear();
     p->count = 1;
     p->sum = p->value; 
+    p->parent = parq;
 
     parq->count++;
     parq->sum += p->value;
@@ -135,6 +130,7 @@ int main(){
     for(long long i = 0; i < n; i++){
         tree[i] = new node(i + 1);
     }
+    //print_tree(tree, n);
     long long ins, p, q;
     for(long long i = 0; i < m; i++){
         cin >> ins;
@@ -148,7 +144,7 @@ int main(){
             cin >> p;
             num_sum(tree[p - 1]);
         }
-        //print_tree(tree, n);
+        print_tree(tree, n);
     }
 
     
