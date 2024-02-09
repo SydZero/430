@@ -54,6 +54,18 @@ void dec(node* curr, long long n){
     }
 }
 
+class train{
+    public:
+        map<long long, node*> trains;
+        node** car;
+        long long order[];
+
+        train(){
+
+        }
+};
+
+
 int main(){
     int n;
     cin >> n;

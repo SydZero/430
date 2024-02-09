@@ -11,9 +11,6 @@ struct node{
     }
 };
 
-
-//fuckit redo
-
 class full_tree{
     private:
         node** tree;
@@ -23,18 +20,49 @@ class full_tree{
         full_tree(long long n): n(n){
             tree = new node*[n + 1];
 
+            //create n+1 nodes so no indexing changes later
             for(long long i = 0; i <= n; i++){
                 tree[i] = new node(i);
             }
         }
 
+        //literally just want logic to work before path compression
         node* parent(node* p){
             if(p != p->parent){
-                p->parent->sum -= p->sum;
-                p->parent->count -= p->count;
-                p->parent = parent(p->parent);
+                node* newrt = parent(p->parent);
+                // print_node(p);
+                // cout << " ";
+                // print_node(p->parent);
+
+                if(p->parent != newrt){
+                    p->parent->sum -= p->sum;
+                    p->parent->count -= p->count;
+                }
+
+                // cout << " ";
+                // print_node(p->parent);
+                // cout << endl;
+                p->parent = newrt;
+                return p->parent;
             }
             return p->parent;
+        }
+
+        //used for move node, changes all nodes with parent p to have parent q
+        void new_parents(node* p, node* q){
+            if(!q || p == q){
+                return;
+            }
+            for(long long i = 1; i <= n; i++){
+                if(tree[i]->parent == p){
+                    tree[i]->parent = q;
+                    //q already has its own info stored
+                    if(tree[i] != q){
+                        q->sum += tree[i]->sum;
+                        q->count += tree[i]->count;
+                    }
+                }
+            }
         }
         
         void node_union(long long pi, long long qi){
@@ -45,7 +73,10 @@ class full_tree{
             node* parq = parent(q);
 
             if(parp != parq){
-
+                parp->parent = parq;
+                
+                parq->count += parp->count;
+                parq->sum += parp->sum;
             }
         }
 
@@ -56,9 +87,39 @@ class full_tree{
             node* parp = parent(p);
             node* parq = parent(q);
 
+            
             if(parp != parq){
-                
+                node* new_parent = nullptr;
+                if(parp != p){
+                    //if !root
+                    new_parent = parp;
+                    new_parent->parent = parp;
+                    new_parent->sum -= p->sum;
+                    new_parent->count -= p->count;
+                } else {
+                    //if root
+                    for(long long i = 1; i <= n; i++){
+                        if(tree[i]->parent == p){
+                            new_parent = tree[i];
+                            break;
+                        }
+                    }
+                }
+
+                p->parent = parq;
+                p->sum = p->value;
+                p->count = 1;
+
+                if(new_parent){
+                    new_parents(p, new_parent);
+                }
+
+                parq->count += p->count;
+                parq->sum += p->sum;
             }
+
+            
+
         }
 
         void num_sum(long long pi){
@@ -67,10 +128,6 @@ class full_tree{
             node* parp = parent(p);
 
             cout << parp->count << " " << parp->sum << endl;
-        }
-
-        node* at(long long p){
-            return tree[p];
         }
 
         void print_set(set<node*> vals){
@@ -85,8 +142,7 @@ class full_tree{
         }
 
         void print_node(node* n){
-            cout << n->value << ": {" << n->sum << ", " << n->count;
-            cout << "} ";
+            cout << n->value << ": {" << n->sum << ", " << n->count << "}";
         }
 
 
@@ -109,27 +165,25 @@ class full_tree{
 
 int main(){
     long long n, m;
-    cin >> n >> m;
-
-    full_tree FT = full_tree(n);
-
     
     long long ins, p, q;
-    for(long long i = 0; i < m; i++){
-        cin >> ins;
-        if(ins == 1){
-            cin >> p >> q;
-            FT.node_union(p, q);
-        } else if(ins == 2){
-            cin >> p >> q;
-            FT.move_node(p, q);
-        } else if(ins == 3){
-            cin >> p;
-            FT.num_sum(p);
+    while(cin >> n >>  m){
+        full_tree FT = full_tree(n);
+        for(long long i = 0; i < m; i++){
+            cin >> ins;
+            if(ins == 1){
+                cin >> p >> q;
+                FT.node_union(p, q);
+            } else if(ins == 2){
+                cin >> p >> q;
+                FT.move_node(p, q);
+            } else if(ins == 3){
+                cin >> p;
+                FT.num_sum(p);
+            }
+            // FT.print_tree();
         }
-        FT.print_tree();
     }
-
     
 
     return 0;
