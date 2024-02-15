@@ -1,165 +1,91 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct node{
-    node* parent;
-    long long value;
-    long long sum;
-    long long count;
-
-    node(long long t): parent(this), value(t), sum(t), count(1){
+void print_set(set<long long> vals){
+    if(vals.empty()){
+        return;
     }
-};
+    for(long long str: vals){
+        cout << str << " " ;
+    }
+}
 
 class full_tree{
     private:
-        node** tree;
+        set<long long>* sets;
+        long long* tree;
+        long long* sum;
         long long n;
 
     public:
         full_tree(long long n): n(n){
-            tree = new node*[n + 1];
+            sets = new set<long long>[n + 1];
+            tree = new long long[n + 1];
+            sum = new long long[n+1];
 
-            //create n+1 nodes so no indexing changes later
             for(long long i = 0; i <= n; i++){
-                tree[i] = new node(i);
-            }
-        }
-
-        //literally just want logic to work before path compression
-        node* parent(node* p){
-            if(p != p->parent){
-                node* newrt = parent(p->parent);
-                // print_node(p);
-                // cout << " ";
-                // print_node(p->parent);
-
-                if(p->parent != newrt){
-                    p->parent->sum -= p->sum;
-                    p->parent->count -= p->count;
-                }
-
-                // cout << " ";
-                // print_node(p->parent);
-                // cout << endl;
-                p->parent = newrt;
-                return p->parent;
-            }
-            return p->parent;
-        }
-
-        //used for move node, changes all nodes with parent p to have parent q
-        void new_parents(node* p, node* q){
-            if(!q || p == q){
-                return;
-            }
-            for(long long i = 1; i <= n; i++){
-                if(tree[i]->parent == p){
-                    tree[i]->parent = q;
-                    //q already has its own info stored
-                    if(tree[i] != q){
-                        q->sum += tree[i]->sum;
-                        q->count += tree[i]->count;
-                    }
-                }
+                sets[i].insert(i);
+                tree[i] = i;
+                sum[i] = i;
             }
         }
         
         void node_union(long long pi, long long qi){
-            node* p = tree[pi];
-            node* q = tree[qi];
+            long long p = tree[pi];
+            long long q = tree[qi];
 
-            node* parp = parent(p);
-            node* parq = parent(q);
-
-            if(parp != parq){
-                parp->parent = parq;
-                
-                parq->count += parp->count;
-                parq->sum += parp->sum;
+            if(sets[p].size() > sets[q].size()){
+                long long temp = p;
+                p = q;
+                q = temp;
+            }
+            
+            if(p != q){
+                sets[q].insert(sets[p].begin(), sets[p].end());
+                for(long long num: sets[p]){
+                    tree[num] = q;
+                }
+                sets[p].clear();
+                sum[q] += sum[p];
+                sum[p] = 0;
+                // tree[p] = q;
             }
         }
 
         void move_node(long long  pi, long long  qi){
-            node* p = tree[pi];
-            node* q = tree[qi];
-
-            node* parp = parent(p);
-            node* parq = parent(q);
-
+            long long p = tree[pi];
+            long long q = tree[qi];
             
-            if(parp != parq){
-                node* new_parent = nullptr;
-                if(parp != p){
-                    //if !root
-                    new_parent = parp;
-                    new_parent->parent = parp;
-                    new_parent->sum -= p->sum;
-                    new_parent->count -= p->count;
-                } else {
-                    //if root
-                    for(long long i = 1; i <= n; i++){
-                        if(tree[i]->parent == p){
-                            new_parent = tree[i];
-                            break;
-                        }
-                    }
-                }
-
-                p->parent = parq;
-                p->sum = p->value;
-                p->count = 1;
-
-                if(new_parent){
-                    new_parents(p, new_parent);
-                }
-
-                parq->count += p->count;
-                parq->sum += p->sum;
+            if(p != q){
+                sum[p] -= pi;
+                sum[q] += pi;
+                sets[p].erase(pi);
+                sets[q].insert(pi);
+                tree[pi] = q;
             }
-
-            
-
         }
 
         void num_sum(long long pi){
-            node* p = tree[pi];
+            long long p = tree[pi];
 
-            node* parp = parent(p);
-
-            cout << parp->count << " " << parp->sum << endl;
+            cout << sets[p].size() << " " << sum[p] << endl;
         }
-
-        void print_set(set<node*> vals){
-            if(vals.empty()){
-                return;
-            }
-            cout << "[";
-            for(node* str: vals){
-                cout << str->value << " " ;
-            }
-            cout << "]";
-        }
-
-        void print_node(node* n){
-            cout << n->value << ": {" << n->sum << ", " << n->count << "}";
-        }
-
 
         void print_tree(){
-            if(true){
-                cout << "________________" << endl;
-                for(long long i = 1; i <= n; i++){
-                    print_node(tree[i]);
-                    cout << " -> ";
-                    print_node(tree[i]->parent);
-                    cout << endl;
-                }
-                cout << "________________" << endl;
+            cout << "______________" << endl;
+            for(long long i = 1; i <= n && i < 20; i++){
+                cout << i << ": sum=" << sum[i] << "  in_set=" << tree[i] <<"   ";
+                print_set(sets[i]);
+                cout << endl;
             }
+            cout << "______________" << endl;
         }
 
-
+        ~full_tree(){
+            delete[] sets;
+            delete[] tree;
+            delete[] sum;
+        }
 };
 
 
@@ -181,7 +107,7 @@ int main(){
                 cin >> p;
                 FT.num_sum(p);
             }
-            // FT.print_tree();
+            //FT.print_tree();
         }
     }
     

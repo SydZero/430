@@ -2,42 +2,15 @@
 using namespace std;
 
 struct node{
-    node* next;
-    node* prev;
-    int value;
-    int total;
-    bool del;
+    node* parent;
+    long long value;
+    long long total;
+    bool intree;
 
-    node(int t): next(nullptr), prev(nullptr), value(t), total(0), del(false){
+
+    node(long long t): parent(this), value(t), total(t), intree(false){
     }
 };
-
-int count(node* n){
-    if(!n){
-        return 0;
-    }
-    node* curr = n;
-    int total = 0;
-    while(curr){
-        total += curr->value;
-        curr = curr->next;
-    }
-
-    if(total % 10 == 0){
-        return total;
-    }
-    return total + 10 - (total % 10);
-
-}
-
-void print_node(node* curr){
-    cout << curr->total << " {";
-    while(curr){
-        cout << curr->value << "<-";
-        curr = curr->next;
-    }
-    cout << "}" << endl;
-}
 
 long long _round(long long total){
     if(total % 10 == 0){
@@ -47,85 +20,106 @@ long long _round(long long total){
 
 }
 
-void dec(node* curr, long long n){
-    curr->total -= n;
-    if(curr->prev){
-        dec(curr->prev, n);
+node* parent(node* p){
+    if(p->parent != p){
+        return parent(p->parent);
     }
+    return p;
 }
 
-class train{
+class Train{
     public:
-        map<long long, node*> trains;
-        node** car;
-        long long order[];
+        long long n;
+        vector<node*> car;
+        vector<long long> order;
+        vector<long long> all_chaos;
+        vector<long long> current_roots;
+        long long max_chaos;
 
-        train(){
-
+        Train(long long n): n(n){
+            car = vector<node*>();
+            order = vector<long long>();
+            all_chaos = vector<long long>();
+            max_chaos = 0;
         }
+
+        long long find_max(){
+            long long curr_chaos = 0;
+            long long segments = 0;
+
+            for(int i = n-1; i >= 0; i--){
+                //cout << i << ": " << order[i] << endl;
+                long long ind = order[i];
+                node* curr = car[ind];
+                node* prev = nullptr;
+                node* next = nullptr;
+                curr->intree = true;
+
+                long long change = 0;
+
+
+                if(ind < n - 1){
+                    
+                    next = car[ind + 1];
+                    if(next->intree){
+                        next->parent = curr->parent;
+                        change -= _round(next->total);                 
+                        next->parent = curr->parent;
+                        curr->parent->total += next->total;
+                    }
+                }
+
+                if(ind > 0){
+                    prev = car[ind - 1];
+                    if(prev->intree){
+                        curr->parent = parent(prev);
+                        if(curr->parent != curr){
+                            change -= _round(curr->parent->total);
+                            curr->parent->total += curr->total;
+                        }
+                        
+                    }
+                }
+            
+                change += _round(parent(curr)->total);
+                curr_chaos += change;
+                if((!prev || !(prev->intree)) && (!next || !(next->intree))){
+                    segments++;
+                } else if((prev && prev->intree) && (next && next->intree)){
+                    segments--;
+                }
+
+                max_chaos = max(max_chaos, curr_chaos * segments);
+                //cout << "curr chaos: " << curr_chaos << " * " << segments << endl;
+            }
+            return max_chaos;
+        }
+
 };
 
 
 int main(){
-    int n;
+    long long n;
     cin >> n;
 
-    int p[n];
-    int order[n];
-    node* train[n];
-    vector<node*> segments;
-
-    long long curr_chaos = 0;
-    long long unround_chaos = 0;
-    long long max_chaos = 0;
+    Train train = Train(n);
+    long long p[n];
 
     for(int i = 0; i < n; i++){
         cin >> p[i];
-        train[i] = new node(p[i]);
+        train.car.push_back(new node(p[i]));
     }
-
-    long long total = 0;
-    for(int i = n-1; i >= 0; i--){
-        if(i != 0){
-            train[i]->prev = train[i - 1];
-            train[i - 1]->next = train[i];
-        }
-        total += train[i]->value;
-        train[i]->total = total;
-    }
-
-    long long curr;
-    long long segs = 1;
-    unround_chaos = train[0]->total;
-    curr_chaos = _round(train[0]->total);
-    max_chaos = curr_chaos;
 
     for(long long i = 0; i < n; i++){
+        long long curr;
         cin >> curr;
         curr--;
-        
-        if(train[curr]->next){
-            segs++;
-            train[curr]->next->prev = nullptr;
-        }
-        if(train[curr]->prev){
-            train[curr]->prev->next = nullptr;
-        } else {
-            segs--;
-        }
+        train.order.push_back(curr);
+    }
 
-        curr_chaos = _round(unround_chaos - train[curr]->total) + _round(train[curr]->total - train[curr]->value);
+    train.find_max();
 
-        unround_chaos -= train[curr]->value;
-
-
-
-        dec(train[curr], train[curr]->total);
-        
-
-        max_chaos = max(max_chaos, curr_chaos * segs);
-    } 
-    cout << max_chaos << endl;
+    cout << train.max_chaos << endl;
     
 
     return 0;
