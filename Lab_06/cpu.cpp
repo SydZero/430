@@ -5,21 +5,24 @@ int main(){
     long long q, m, s, l;
     cin >> q >> m >> s >> l;
 
-    long long units;
-
-    if(s % q == 0){
-        units = s / q;
-    } else {
-        units = (s / q) + 1;
-    }
-
-    units = l + units;
+    long long ones;
+    long long qs;
 
     if(l % m == 0){
-        cout << (l / m) * q << endl;
+        qs = (l / m);
     } else {
-        cout << ((l / m) + 1) * q << endl;
+        qs = ((l / m) + 1);
     }
+
+    if(s % m == 0){
+        ones = s / m;
+    } else {
+        ones = (s / m) + 1;
+    }
+
+    
+
+    
 
     return 0;
 }

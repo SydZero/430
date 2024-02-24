@@ -86,6 +86,7 @@ public:
             arr2[r][c0] = 'O';
             
         }
+        //print_board(arr2);
         return arr2;
     }
 
@@ -96,6 +97,7 @@ public:
                 return 0;
             }
             arr[r0][c0] = 'O';
+            //print_board(arr);
             if(hits_good(arr)){
                 arr[r0][c0] = '.';
                 return 1;
@@ -114,7 +116,7 @@ public:
                     sum += 1;
                 }
             }    
-        `   return sum;
+        return sum;
         }
     }
 
@@ -153,7 +155,7 @@ public:
 
 int main(){
     cin >> n >> k;
-
+    
     board bro = board();
     for (long long i = 0; i < k; i++){
         int temp;
