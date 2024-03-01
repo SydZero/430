@@ -14,13 +14,23 @@ void print_board(char** board){
     cout << "___________________" << endl;
 }
 
+struct ship{
+    int x;
+    int y;
+    int size;
+    bool horizontal;
+    ship(int y, int x, int size, bool horizontal): x(x), y(y), size(size), horizontal(horizontal){}
+};
+
 class board{
 public:
     char** b;
     vector<pair<int, int>> hits;
     vector<int> sizes;
+    stack<ship> current_ships;
 
     board(): hits(0), sizes(0){
+        stack<ship> current_ships;
         b = new char*[n];
         for (long long r = 0; r < n; r++){
             b[r] = new char[n];
@@ -33,123 +43,146 @@ public:
             }
         }
     }
-
-    bool hits_good(char** check){
-        if(check == nullptr){
-            return false;
-        }
+    bool hits_good(){
         for(int i = 0; i < hits.size(); i++){
-            if(check[hits.at(i).first][hits.at(i).second] != 'O'){
+            if(b[hits.at(i).first][hits.at(i).second] != 'O'){
                 return false;
             }
         }
         return true;
     }
 
-    char** place_horiz(char** arr, long long s, long long r0, long long c0){
-        if(c0 + s > n){
-            return nullptr;
+    void remove_ship(){
+        ship curr = current_ships.top();
+        current_ships.pop();
+        
+        if(!curr.horizontal){
+            for(int r = curr.y; r < curr.y + curr.size; r++){
+                //cout << "   " << r << " " << curr.x << " = " << b[r][curr.x];
+                b[r][curr.x] = 'b';
+                //cout << "->" << b[r][curr.x] << endl;
+            }
+        } else {
+            for(int c = curr.x; c < curr.x + curr.size; c++){
+                b[curr.y][c] = 'b';
+            }
         }
-        char** arr2 = new char*[n];
-        for(int r = 0; r < n; r++){
-            arr2[r] = new char[n];
-            for(int c = 0; c < n; c++){
-                arr2[r][c] = arr[r][c];
+        //cout << "Removing: " << curr.size << " " << curr.y << " " << curr.x << " " << curr.horizontal << endl;
+        //print_board(b);
+    }
+
+    bool place_horiz(long long s, long long r0, long long c0){
+        if(c0 + s > n){
+            return false;
+        }
+        for(int c = c0; c < c0 + s; c++){
+            if(b[r0][c] == 'O' || b[r0][c] == 'X'){
+                return false;
             }
         }
         for(int c = c0; c < c0 + s; c++){
-            if(arr2[r0][c] == 'O' || arr2[r0][c] == 'X'){
-                return nullptr;
-            }
-            arr2[r0][c] = 'O';
-            
+            b[r0][c] = 'O';
         }
-        //print_board(arr2);
-        return arr2;
+        ship sh = ship(r0, c0, s, true);
+        current_ships.push(sh);
+        return true;
     }
 
-    char** place_vert(char** arr, long long s, long long r0, long long c0){
+    bool place_vert(long long s, long long r0, long long c0){
         if(r0 + s > n){
-            return nullptr;
+            return false;
         }
-        char** arr2 = new char*[n];
-        for(int r = 0; r < n; r++){
-            arr2[r] = new char[n];
-            for(int c = 0; c < n; c++){
-                arr2[r][c] = arr[r][c];
+        
+        for(int r = r0; r < r0 + s; r++){
+            if(b[r][c0] == 'O' || b[r][c0] == 'X'){
+                return false;
             }
         }
         for(int r = r0; r < r0 + s; r++){
-            if(arr2[r][c0] == 'O' || arr2[r][c0] == 'X'){
-                return nullptr;
-            }
-            arr2[r][c0] = 'O';
-            
+            b[r][c0] = 'O';
         }
-        //print_board(arr2);
-        return arr2;
+        ship sh = ship(r0, c0, s, false);
+        current_ships.push(sh);
+        return true;
     }
 
-    long long place_final(char** arr, long long s, long long r0, long long c0){
+    long long place_final(long long s, long long r0, long long c0){
         int sum = 0;
         if(s == 1){
-            if(arr[r0][c0] == 'O' || arr[r0][c0] == 'X'){
+            if(b[r0][c0] == 'O' || b[r0][c0] == 'X'){
                 return 0;
             }
-            arr[r0][c0] = 'O';
-            //print_board(arr);
-            if(hits_good(arr)){
-                arr[r0][c0] = '.';
+            b[r0][c0] = 'O';
+            //print_board(b);
+            if(hits_good()){
+                b[r0][c0] = '.';
                 return 1;
             }
-            arr[r0][c0] = '.';
+            b[r0][c0] = '.';
             return 0;
         } else {
             bool found = true;
             if(c0 + s <= n){
-                if(hits_good(place_horiz(arr, s, r0, c0))){
-                    sum += 1;
+                if(place_horiz(s, r0, c0)){
+                    if(hits_good()){
+                        sum += 1;
+                    }
+                    //print_board(b);
+                    remove_ship();
                 }
             }
             if(r0 + s <= n){
-                if(hits_good(place_vert(arr, s, r0, c0))){
-                    sum += 1;
+                if(place_vert(s, r0, c0)){
+                    if(hits_good()){
+                        sum += 1;
+                    }
+                    //print_board(b);
+                    remove_ship();
                 }
             }    
-        return sum;
+            return sum;
         }
     }
 
-    int num_combos(char** arr, long long i){
+    int num_combos(long long i){
         int sum = 0;
-        if(arr == nullptr){
+        if(b == nullptr){
             return 0;
         }
+        //print_board(b);
         for(int r = 0; r < n; r++){
             for(int c = 0; c < n; c++){
-                if(arr[r][c] == 'X' || arr[r][c] == 'O'){
+                if(b[r][c] == 'X' || b[r][c] == 'O'){
                     continue;
                 }
+                //cout << "place " << sizes.at(i) << "(" << i << ") at " << r << " " << c << endl;
                 if(i == sizes.size() - 1){
-                    sum += place_final(arr, sizes.at(i), r, c);
+                    sum += place_final(sizes.at(i), r, c);
                 } else {
                     if(sizes.at(i) == 1){
-                        sum += num_combos(place_vert(arr, sizes.at(i), r, c), i + 1);
+                        if(place_vert(sizes.at(i), r, c)){
+                            sum += num_combos(i + 1);
+                            remove_ship();
+                        }
                     } else {
                         if(r + sizes.at(i) <= n){
-                            sum += num_combos(place_vert(arr, sizes.at(i), r, c), i + 1);
+                            if(place_vert(sizes.at(i), r, c)){
+                                sum += num_combos(i + 1);
+                                remove_ship();
+                            }
                         }
                         if(c + sizes.at(i) <= n){
-                            sum += num_combos(place_horiz(arr, sizes.at(i), r, c), i + 1);
+                            if(place_horiz(sizes.at(i), r, c)){
+                                sum += num_combos(i + 1);
+                                remove_ship();
+                            }
                         }
                     }
                 }
             } 
         }
-        
         return sum;
     }
-
 };
 
 
@@ -163,7 +196,7 @@ int main(){
         bro.sizes.push_back(temp);
     }
     sort(bro.sizes.begin(), bro.sizes.end(), greater<int>());
-    cout << bro.num_combos(bro.b, 0) << endl;
+    cout << bro.num_combos(0) << endl;
     
     return 0;
 }
