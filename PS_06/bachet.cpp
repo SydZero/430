@@ -10,27 +10,28 @@ void print(vector<bool>& v){
 
 
 int main(){
-    long long stones;
-    while(cin >> stones){
-        long long nums;
-        cin >> nums;
+    long long stones, nums;
+    while(cin >> stones >> nums){
+        vector<int> vals;
         vector<bool> whowins(stones + 1, false);
         for(int i = 0; i < nums; i++){
             int num;
             cin >> num;
-            for(int j = 0; j < nums; j++){
-                if(j == 0){
+            vals.push_back(num);
+        }
+        for(int j = 0; j <= stones; j++){
+            for(int i = 0; i < nums; i++){
+                if(j >= vals.at(i) && !whowins[j - vals.at(i)]){
+                    whowins[j] = true;
                     break;
                 }
-                if(j % num == 0){
-                    whowins[j] = whowins[j] || !whowins[j - 1];
-                }
-            }
-            if(whowins.size() < 40){
-                print(whowins);
             }
         }
-        cout << whowins[stones] << endl;
+        if(whowins[stones] == false){
+            cout << "Ollie wins" << endl;
+        } else {
+            cout << "Stan wins" << endl;
+        }
     }
       
     return 0;

@@ -2,66 +2,58 @@
 using namespace std;
 
 struct node{
-    node* next;
-    node* prev;
     long long i;
     long long fav;
 
-    node(node* n, node* p, long long f, long long ind){
-        
-        next = n;
-        prev = p;
+    node(long long f, long long ind){
         fav = f;
         i = ind;
     }
 };
+
+void print(vector<long long>& v){
+    for(long long i : v){
+        cout << i << " ";
+    }
+    cout << endl;
+}
 
 int main(){
     long long t;
     cin >> t;
 
     node* in[t];
+    vector<long long> profs;
     for(long long i = 0; i < t; i++){
         long long temp;
-        long long next = i + 1;
-
-        if(next == t){
-            next = 0;
-        }
-        cin >> temp;
-
-        in[i] = new node(nullptr, nullptr, temp, i + 1);
-    }
-    for(long long i = 0; i < t; i++){
         
-        long long prev = i - 1;
-        if(i == 0){
-            prev = t - 1;
-        }
-        long long next = i + 1;
-
-        if(next == t){
-            next = 0;
-        }
-        in[i]->next = in[next];
-        in[i]->prev = in[prev];
+        cin >> temp;
+        profs.push_back(i);
+        in[i] = new node(temp, i);
     }
 
     node* curr = in[0];
+    long long move = 0;
     for(long long i = 0; i < t - 1; i++){
-        //cout << "moving " <<  i << endl;
-        long long move = (curr->fav) + 1 % (t - i);   
-          
-        for(int j = 0; j < move; j++){
-            //cout << " call " << curr->i << endl;  
-            curr = curr->next;
+        //cout << curr->i << " " << curr->fav << endl;
+        move = (move + curr->fav - 1) % (profs.size());
+        //cout << "moving " << curr->i << ", remove: " << *(profs.begin()+move) << endl;
+        
+        profs.erase(profs.begin() + move);
+
+        //print(profs);
+
+        if(profs.begin() + move == profs.end()){
+            curr = in[*(profs.begin())];
+        } else {
+            curr = in[*(profs.begin() + move)];
         }
-        curr->prev->next = curr->next;
-        curr->next->prev = curr->prev;
-        curr = curr->next;
+
+        //cout << curr->i << " " << curr->fav << endl;
+        
     }
 
-    cout << curr->i << endl;
+    cout << profs.front() + 1 << endl;
       
     return 0;
 }

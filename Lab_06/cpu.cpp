@@ -16,9 +16,10 @@ int main(){
 
     long long total = qs * q;
 
+    if(l% m != 0){
     s -= (m - (l % m)) * q;
 
-    if(s % m == 0){
+ }   if(s % m == 0){
         ones = s / m;
     } else {
         ones = (s / m) + 1;

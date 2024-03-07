@@ -2,44 +2,44 @@
 using namespace std;
 
 int main(){
-    int t, n;
-    
+    long long t, n;
     cin >> t;
 
-    for(int i = 0; i < t; i++){
+    for(long long i = 0; i < t; i++){
         cin >> n;
-        map<int, set<string>, greater<int>> coll;
-        for(int j = 0; j < n; j++){
-            int i = 0b1000000000000000000;
-            int num = 0b10101010101010101010;
+        map<long long, set<string>, less<long long>> coll;
+        for(long long j = 0; j < n; j++){
+            long long i = 100000000000;
+            long long num = 0;
             string name, class_holder;
             char class_type;
             cin >> name;
             name.erase(name.size() - 1);
-            while(i > 1){
+            while(i >= 1){
                 cin >> class_type;
                 if(class_type == 'u'){
-                    num = num + i * 0b11;
+                    num = num + i * 3;
                 } else if(class_type == 'm'){
-                    num = num + i * 0b10;
+                    num = num + i * 2;
                 } else if(class_type == 'l'){
-                    num = num + i * 0b01;
+                    num = num + i * 1;
                 }
+                // cout << num << endl;
                 while(class_type != '-' && class_type != ' ' && class_type != 'c'){
                     cin >> class_type;
                 }
-                i /= 4;
-                if(class_type == ' ' || class_type == 'c'){
+                i = i / 10;
+                if((class_type == ' ' || class_type == 'c')){
+                    while(i >= 1){
+                        num += 2 * i;
+                        i /= 10;
+                    }
                     break;
                 }
             }
-            while(i > 1){
-                num = num + i * 0b10;
-                i /= 4;
-            }
             cin >> class_holder;
-            coll[num].insert(name);
-            //cout << name << " " << hex << num << endl;
+            // cout << name << " " << -1 * num << endl;
+            coll[num * -1].insert(name);
         }
         for(auto namelist: coll){
             for(auto namey: namelist.second){
