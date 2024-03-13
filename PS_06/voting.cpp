@@ -31,26 +31,26 @@ int recurse(int** DP, int** prefs){
             int c = j ^ 0b100;
             for(int k = 0; k < 8; k++){
                 if(DP[i + 1][a] == prefs[i][k]){
-                    DP[i][j] = a;
+                    DP[i][j] = DP[i + 1][a];
                     break;   
                 }
                 if(DP[i + 1][b] == prefs[i][k]){
-                    DP[i][j] = b;
+                    DP[i][j] = DP[i + 1][b];
                     break;   
                 }
                 if(DP[i + 1][c] == prefs[i][k]){
-                    DP[i][j] = c;
+                    DP[i][j] = DP[i + 1][c];
                     break;   
                 }
             }
         }
     }
-    for(i = 1; i <= m; i++){
-        for(int j = 0; j < 8; j++){
-            cout << DP[i][j];
-        }
-        cout << endl;
-    }
+    // for(i = 1; i <= m; i++){
+    //     for(int j = 0; j < 8; j++){
+    //         cout << DP[i][j];
+    //     }
+    //     cout << endl;
+    // }
     return DP[1][0];
 }
 

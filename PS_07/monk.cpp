@@ -19,7 +19,7 @@ bool check_intersection(segment s1, segment s2){
     long double det = xcoef1 * ycoef2 - xcoef2 * ycoef1;
     if (det == 0) {
         //cout << "Det == 0: " << s1.y1 << " " << s2.y1 << " --- " << s1.y2 << " " << s2.y2 << endl;
-        if(s1.y1 == s2.y2 || s1.y1 == s2.y2){
+        if((s1.x1 == s2.x1 && s1.y2 >= s2.y1 )|| s1.y1 == s2.y2 || s1.y2 == s2.y1){
             cout << fixed << setprecision(6) << max(s1.x1, s2.x1) << endl;
             return true;
         }
@@ -31,7 +31,6 @@ bool check_intersection(segment s1, segment s2){
     //cout << "   " << x << " " << y <<endl;
     
     if(x < max(s1.x1, s2.x1) || x > min(s1.x2, s2.x2)){
-        //cout << s1.x1 << " " << s2.x1 << " > " << x << " < " << s1.x2 << " " << s2.x2 << endl;
         return false;
     }
 
@@ -71,7 +70,6 @@ int main(){
         if(descent.at(down).y1 > acscent.at(up).y1 && descent.at(down).y2 > acscent.at(up).y2){
             up++;
             down++;
-            continue;
         } else {
             if(check_intersection(descent.at(down), acscent.at(up))){
                 break;
