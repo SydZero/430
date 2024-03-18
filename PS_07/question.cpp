@@ -22,46 +22,49 @@ int main(){
         cin >> meals[i];
         cals[i] = cals[i - 1] * (2.0/3.0);
     }
-
-    for(int r = 0; r < n; r++){
-        // cout << cals[r] << " ";
-        for(int c = n - 1; c >= 0; c--){
+   
+    for(int c = n - 1; c >= 0; c--){
+        for(int r = 0; r < n; r++){     
+            nice_cals[r][c] = min(cals[c - r], meals[c]);   
+            // cout << "filling " << r << " " << c << endl;
             if(r > c){
-                sum_cals[r][c] = 0;
+                sum_cals[r][c] = sum_cals[c][c];
+                nice_cals[r][c] = 0;
                 continue;
             }
-            if(c < n - 1){
-                sum_cals[r][c] = sum_cals[r][c + 1] + min(cals[c - r], meals[c]);
-            } else {
-                sum_cals[r][c] = min(cals[c - r], meals[c]);
-            }
             nice_cals[r][c] = min(cals[c - r], meals[c]);
+            long long eat = 0;
+            long long skip1 = 0;
+            long long skip2 = 0;
+            if(c + 1 < n){
+                eat = nice_cals[r][c] + sum_cals[r][c + 1];
+                // cout << "   eat: " << eat << endl;
+                if(r + 2 < n){
+                    skip1 = sum_cals[r + 2][c + 1];
+                    // cout << "   skip1: " << skip1 << endl;
+                }
+                if(c + 2 < n){
+                    skip2 = sum_cals[c + 2][c + 2];
+                    // cout << "   skip2: " << skip2 << endl;
+                }
+                sum_cals[r][c] = max(eat, max(skip1, skip2));
+            } else {
+                sum_cals[r][c] = nice_cals[r][c];
+            }
+            // cout << "filled with: " << sum_cals[r][c] << endl;
+            
         }
     }
-    // cout << endl;
 
-    // for(int r = 0; r < n; r++){
-    //     print(sum_cals[r], n);
-    // }
-    // cout << "_________" << endl;
     // for(int r = 0; r < n; r++){
     //     print(nice_cals[r], n);
     // }
+    // cout << "_________" << endl;
+    // for(int r = 0; r < n; r++){
+    //     print(sum_cals[r], n);
+    // }
     
-    long long sum = sum_cals[0][0];
-
-    int r = 0;
-
-    for(int c = 0; c < n - 1; c++){
-        if(sum_cals[r][c] <= sum_cals[r + 1][c + 1]){
-            sum += sum_cals[r + 1][c + 1] - sum_cals[r][c];
-            r++;
-        }
-    }
-
-    cout << sum << endl;
+    cout << sum_cals[0][0] << endl;
     
-    
-      
     return 0;
 }
