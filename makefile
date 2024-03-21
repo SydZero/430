@@ -6,6 +6,6 @@ FILE ?= "*"
 run: $(FILE).cpp
 	rm -f out.txt
 	$(CXX) $(FLAGS) $(FILE).cpp
-	./a.out >> out.txt
+	./a.out < in.txt >> out.txt
 	rm -f a.out
 

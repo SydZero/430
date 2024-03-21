@@ -2,84 +2,81 @@
 using namespace std;
 
 class graph{
-public: 
+public:
     struct node{
         int name;
-        set<node*> children;
-        set<node*> parents;
+        set<node*> parent;
         bool picked_up;
+        bool processing;
 
-        node():name(-1){}
+        node(int n) : name(n), picked_up(0), processing(0){}
     };
 
     long long n;
-    node** nodes;
+    node**nodes;
     map<string, node*> node_map;
     set<pair<node*, node*>> edges;
 
-
-    graph(long long ogn): n(ogn + 1){
+    graph(long long ogn) : n(ogn + 1){
         nodes = new node*[n];
-        for(int i = 1; i <= n; i++){
-            nodes[i] = new node();
-            nodes[i]->name = i;
-            nodes[i]->picked_up = false;
+        for (int i = 1; i < n; i++){
+            nodes[i] = new node(i);
+            
         }
     }
 
     void add_edge(int a, int b){
-        nodes[a]->children.insert(nodes[b]);
-        nodes[b]->parents.insert(nodes[a]);
-        edges.insert({nodes[a], nodes[b]});
+        nodes[b]->parent.insert(nodes[a]);
     }
 
-    bool dfs(node* init, stringstream& output){
-        if(init->picked_up == true && init->parents.size() != 0){
+    bool dfs(node* init, stringstream &output) {
+        if(init->processing == true){
             return false;
         }
-        for(node* parent: init->parents){
-            if(!parent->picked_up && !dfs(parent, output)){
+        init->processing = true;
+        for (node *par : init->parent){
+            if(!par->picked_up && !dfs(par, output)){
                 return false;
             }
         }
-        if(!init->picked_up){
-            output << init->name << endl;
-            init->picked_up = true;
-            return true;
-        }
-        return false;
+
+        init->processing = false;
+        init->picked_up = true;
+        output << init->name << endl;
+        return true;
     }
 
     void pickup(){
         bool valid = true;
         stringstream output = stringstream();
-        for(int i = 1; i <= n; i++){
-            if(nodes[i]->picked_up == false && !dfs(nodes[i], output)){
+        for (int i = 1; i < n; i++){
+            // dfs(i, output);
+            if (!nodes[i]->picked_up && !dfs(nodes[i], output)) {
                 valid = false;
                 break;
             }
         }
 
-        if(!valid){
+        if (!valid){
             cout << "IMPOSSIBLE" << endl;
             return;
         }
 
         string line;
-        while(output >> line){
+        while (getline(output, line)){
             cout << line << endl;
         }
-        
     }
 };
 
-int main(){
+int main()
+{
     int n, m;
     cin >> n >> m;
 
     graph g = graph(n);
 
-    for(int i = 0; i < m; i++){
+    for (int i = 0; i < m; i++){
         int a, b;
         cin >> a >> b;
 
