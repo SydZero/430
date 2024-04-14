@@ -4,47 +4,94 @@ using namespace std;
 class graph{
 public:
     struct node{
-        set<node*> adj;
-        node(){}
+        node* parent;
+        int name;
+        int x;
+        int y;
+        node(int name, int x, int y): parent(this), name(name), x(x), y(y){}
     };
 
-    node** nodes;
-    long long p;
-    set<pair<node*, node*>> edges;
+    struct edge{
+        node* start;
+        node* end;
+        double length;
 
-    graph(long long p) : p(p){
-        nodes = new node*[p];
-        
-        for (long long i = 0; i < p; i++){
-            nodes[i] = new node();
+        edge(node* startn, node* endn, int l): start(startn), end(endn), length(l){}
+    };
+
+    long long s;
+    long long p;
+    vector<node*> nodes;
+    vector<edge*> edges;
+
+    graph(long long s, long long p) : p(p), s(s){}
+
+    void add_outpost(int a, int b){
+        node* temp = new node(nodes.size(), a, b);
+        nodes.push_back(temp);
+        for(int i = 0; i < nodes.size() - 1; i++){
+            edges.push_back(new edge(nodes[i], nodes[nodes.size() - 1], dist(nodes[i], nodes[nodes.size() - 1])));
         }
     }
 
-    void add_edge(int a, int b){
-        nodes[b]->adj.insert(nodes[a]);
-        nodes[a]->adj.insert(nodes[b]);
-        edges.insert({nodes[min(a, b)], nodes[max(a, b)]});
+    double dist(node* a, node* b){
+        return sqrt(pow(a->x - b->x, 2) + pow(a->y - b->y, 2));
     }
-             
+
+    node* parent(node* p){
+        if(p != p->parent){
+            node* prent = parent(p->parent);
+            p->parent = prent;
+            return prent;
+        }
+        return p->parent;
+    }
+
+    void kruskals(){ 
+        int ans = 0; 
+        vector<int> final_edges;
+        sort(edges.begin(), edges.end());
+        for (edge*  e : edges) { 
+            int w = e->length; 
+            
+            node* para = parent(e->start);
+            node* parb = parent(e->end);
+            
+            if (para != parb) { 
+                ans += w;
+                parb->parent = para;
+                final_edges.push_back(w);
+            } 
+        } 
+        sort(final_edges.begin(), final_edges.end(), less<int>());
+        
+        // for(double edge: final_edges){
+        //     cout << sqrt(edge) << endl;
+        // }
+
+        cout << std::fixed << setprecision(2) << final_edges.at(final_edges.size() - s) << endl; 
+    }      
 };
 
 int main(){
-    long long p, c;
-    while(true){
-        cin >> p >> c;
+    int n;
+    cin >> n;
+    for(int i = 0; i < n; i++){
+        int s, p;
+        cin >> s >> p;
 
-        if(p == 0 && c == 0){
-            break;
+        graph g = graph(s, p);
+
+        for(int j = 0; j < p; j++){
+            int x, y;
+            cin >> x >> y;
+            g.add_outpost(x, y);
         }
 
-        graph g = graph(p);
-
-        for(int i = 0; i < c; i++){
-            int a, b;
-            cin >> a >> b;
-            g.add_edge(a, b);
-        }
+        g.kruskals();
     }
+
+    
 
 
     return 0;

@@ -29,7 +29,7 @@ public:
     int rings;
     queue<node*> q;
 
-    graph(int rows, int cols) : rows(rows), cols(cols){
+    graph(int rows, int cols) : rows(rows), cols(cols), rings(0){
         nodes = new node**[rows];
         
         for (int r = 0; r < rows; r++){
