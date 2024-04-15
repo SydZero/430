@@ -5,6 +5,7 @@ struct hole;
 struct gopher{
     double x;
     double y;
+    set<hole*> holes;
 
     gopher(double x, double y): x(x), y(y){}
 };
@@ -12,77 +13,100 @@ struct gopher{
 struct hole{
     double x;
     double y;
+    set<gopher*> gophers;
+    bool visited;
+    gopher* g;
 
-    hole(double x, double y): x(x), y(y){}
+    hole(double x, double y): x(x), y(y), visited(false), g(nullptr){}
 };
 
 class graph{
 public:
-    int n;
-    int m;
-    vector<int> facilities;
+    long n;
+    long m;
+    long s;
+    long v;
     vector<gopher*> gs;
     vector<hole*> hs;
+    
 
-    graph(int n, int m): n(n), m(m){}
+    graph(long n, long m, long s, long v): n(n), m(m), s(s), v(v){}
 
     void add_gopher(double x, double y){
-        roads.push_back(new road(a, b, p, t));
-        nodes.at(a)->out.insert(roads.at(roads.size()-1));
+        gs.push_back(new gopher(x, y));
     }
+
     void add_hole(double x, double y){
-        hs.push_back(new hole(a, b, p, t));
+        hs.push_back(new hole(x, y));
     }
 
-    void bfshelper(node* curr){
-        queue<node*> q; 
-        q.push(curr);
+    void add_edge(gopher* g, hole* h){
+        double dist = sqrt(pow(g->x - h->x, 2) + pow(g->y - h->y, 2));
+        if(dist / v <= s){
+            g->holes.insert(h);
+            h->gophers.insert(g);
+        }
+    }
 
-        while(!q.empty()){
-            curr = q.front();
-            q.pop();
-            for(road* r : curr->out){
-                node* next = nodes.at(r->b);
-                next->max_people = min(curr->max_people, next->max_people);
-                if(!next->medical){
-                    q.push(next);
+    void clear_visited(){
+        for(hole* h : hs){
+            h->visited = false;
+        }
+    }
+
+    bool bp_helper(gopher* g){
+        for(hole* h: g->holes){
+            if(!h->visited){
+                h->visited = true;
+                if(h->g == nullptr || bp_helper(h->g)){
+                    h->g = g;
+                    return true;
                 }
             }
         }
+        return false;
     }
 
-    void max_flow(){
-
+    long bipartite(){
+        long sum = 0;
+        for (long g = 0; g < gs.size(); g++){
+            clear_visited();
+            if(bp_helper(gs.at(g))){
+                sum++;
+            }
+        }
+        return sum;
     }
-
 };
 
 int main(){
-    int t;
-    cin >> t;
+    long n, m, s, v;
 
-    for(int k = 0; k < t; k++){
-        int n;
-        cin >> n;
-        
-        int i, g, s, m;
-        graph gra = graph(n, i, g, s, m);
-        cin >> i >> g >> s >> m;
-        for(int j = 0; j < m; j++){
-            int x;
-            cin >> x;
-            gra.nodes.at(x)->medical = true;
-            gra.facilities.push_back(x);
+    while(cin >> n >> m >> s >> v){
+        graph g = graph(n, m, s, v);
+    
+        double x, y;
+        for(int i = 0; i < n; i++){
+            cin >> x >> y;
+            g.add_gopher(x, y);
         }
-        int r;
-        cin >> r;
-        for(int j = 0; j < r; j++){
-            int a, b, p, t;
-            cin >> a >> b >> p >> t;
-            gra.add_road(a, b, p, t);
+
+        for(int i = 0; i < m; i++){
+            cin >> x >> y;
+            g.add_hole(x, y);
         }
-        gra.max_flow();
+
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < m; j++){
+                g.add_edge(g.gs.at(i), g.hs.at(j));
+            }
+        }
+
+        cout << g.bipartite() << endl;
     }
 
+    
+
+    
     return 0;
 } 

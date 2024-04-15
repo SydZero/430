@@ -78,15 +78,15 @@ public:
         while(!q.empty()){
             node* curr = q.top();
             q.pop();
-            // curr->print();
-            // cout << ": time-" << curr->time << endl;
+            curr->print();
+            cout << ": time-" << curr->time << endl;
             curr->inq = false;
             for(node* adj : curr->adj){
                 if(adj->inq){
                     double temp = curr->time + time(curr, adj);
-                    // cout << "   ";
-                    // adj->print();
-                    // cout << ": " << temp << " " << adj->time << endl;
+                    cout << "   ";
+                    adj->print();
+                    cout << ": " << temp << " " << adj->time << endl;
                     if(temp < adj->time){
                         adj->time = temp;
                         q.push(curr);
