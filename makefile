@@ -1,5 +1,5 @@
 CXX = g++
-FLAGS = -std=c++17
+FLAGS = -Wall -Wextra -pedantic -std=c++17
 
 FILE ?= "*"
 

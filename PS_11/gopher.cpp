@@ -102,7 +102,7 @@ int main(){
             }
         }
 
-        cout << g.bipartite() << endl;
+        cout << n - g.bipartite() << endl;
     }
 
     

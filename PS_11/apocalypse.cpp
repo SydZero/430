@@ -8,8 +8,9 @@ struct node{
     set<road*> out;
     int max_people;
     bool medical;
+    bool visited;
 
-    node(int name): name(name), medical(false), max_people(INT32_MAX){}
+    node(int name): name(name), medical(false), max_people(INT32_MAX), visited(false){}
 };
 
 struct road{
@@ -21,20 +22,15 @@ struct road{
     road(int a, int b, int p, int t): a(a), b(b), p(p), t(t){}
 };
 
-// class mycomp{
-// public:
-//     bool operator() (const node* p1, const node* p2) const{
-//         return p1->time > p2->time;
-//     }
-// };
-
 class graph{
 public:
     int n;
     int i, g, s, m;
-    vector<int> facilities;
+    vector<node*> facilities;
     vector<road*> roads;
     vector<node*> nodes;
+
+    node* src;
 
     graph(int n, int i, int g, int s, int m): n(n), i(i), g(g), s(s), m(m){
         nodes.push_back(new node(0));
@@ -48,27 +44,41 @@ public:
         nodes.at(a)->out.insert(roads.at(roads.size()-1));
     }
 
-    void bfshelper(node* curr){
-        queue<node*> q; 
-        q.push(curr);
-
-        while(!q.empty()){
-            curr = q.front();
-            q.pop();
-            for(road* r : curr->out){
-                node* next = nodes.at(r->b);
-                next->max_people = min(curr->max_people, next->max_people);
-                if(!next->medical){
-                    q.push(next);
-                }
-            }
+    void clear_visited(){
+        for(node* n : nodes){
+            n->visited = false;
         }
     }
 
-    void max_flow(){
+    bool bfs(){
+        queue<node*> q;
+        q.push(src);
+        src->visited = true;
+        src->parent = nullptr;
 
+        while(!q.empty()){
+            node* a = q.front();
+            q.pop();
+
+            for(node* adj : a->adj){
+                if(!adj->visited){
+                    if(adj->medical){
+                        return true;
+                    }
+                    q.push(adj);
+                    adj->visited = true;
+                }
+            }
+        }
+        return false;
     }
 
+    long max_flow(){
+        long sum = 0;
+        while(bfs()){
+            
+        }
+    }
 };
 
 int main(){
