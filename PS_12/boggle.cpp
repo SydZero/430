@@ -3,12 +3,9 @@ using namespace std;
 
 struct node{
     map<int, node*> children;
+    string end;
 
-    node() {}
-    
-    void clear(){
-        children.clear();
-    }
+    node() : end("") {}
 };
 
 struct char_node{
@@ -22,7 +19,6 @@ struct char_node{
 class trie {
 public: 
     node* root;
-    set<string> dict;
     char_node* b[4][4];
 
     trie(){
@@ -42,7 +38,6 @@ public:
                         } else if(r + i < 0 || r + i >= 4 || c + j < 0 || c + j >= 4){
                             continue;
                         } else {
-                            // cout << r + i << " " << c + j << endl;
                             b[r][c]->adj.insert(b[r + i][c + j]);
                         }
                     }
@@ -52,45 +47,20 @@ public:
     }
 
     void insert(string str){
-        dict.insert(str);   
-    }
-
-    void _dfs(char_node* n, node* curr){
-        n->visited = true;
-        
-        if(!curr->children[n->c -'A']){
-            curr->children[n->c - 'A'] = new node();
-        }
-        node* newcurr = curr->children[n->c - 'A'];
-        // cout << "howdy " << newcurr << endl;
-        for(char_node* v : n->adj){
-            // cout << v << endl;
-            if(!v->visited){
-                _dfs(v, newcurr);
+        node* curr = root;
+        for(char c : str){
+            if(curr->children[c - 'A'] == nullptr){
+                curr->children[c - 'A'] = new node();
             }
+            curr = curr->children[c - 'A'];
         }
-        
-        n->visited = false;
-    }
-
-    void make_map(){
-        root->clear();
-        for(int r = 0; r < 4; r++){
-            for(int c = 0; c < 4; c++){
-                clear_visited();
-                // cout << b  << " " << r << " " << c << " " << b[r][c]->c << b[r][c]->visited << endl;
-                // cout << root << endl;
-                _dfs(b[r][c], root);
-                // cout << endl;
-            }
-        } 
+        curr->end = str;
     }
 
     void clear_visited(){
         for(int r = 0; r < 4; r++){
             for(int c = 0; c < 4; c++){
                 b[r][c]->visited = false;
-                // cout << r << " " << c << " " << b[r][c]->visited << endl;
             }
         }
     }
@@ -100,57 +70,68 @@ public:
             for(int c = 0; c < 4; c++){
                 cin >> b[r][c]->c;
                 b[r][c]->visited = false;
-                // cout << b[r][c]->c;
             }
-            // cout << endl;
         }
-        // cout << endl;
-        make_map();
+    }
+
+    string _dfs(char_node* n, node* curr){
+        n->visited = true;
+        if(curr->end != ""){
+            return curr->end;
+        }
+        for(char_node* v : n->adj){
+            if(!v->visited){
+                return _dfs(v, curr);
+            }
+        }
+        n->visited = false;
+        return "";
     }
 
     void test_board(){
         string longest_word = "";
         int score = 0;
         int num_words = 0;
+        set<string> words;
 
-        for(string str : dict){
-            bool found = true;
-            node* curr = root;
-            clear_visited();
-            for(char c : str){
-                if(curr->children[c - 'A'] == nullptr){
-                    found = false;
-                    break;
-                }     
-            }
-            if(found){
-                // cout << str << endl;
-                switch(str.size()){
-                    case 3:
-                    case 4:
-                        score += 1;
-                        break;
-                    case 5:
-                        score += 2;
-                        break;
-                    case 6:
-                        score += 3;
-                        break;
-                    case 7:
-                        score += 5;
-                        break;
-                    case 8:
-                        score += 11;
-                        break;
-                }
-                num_words++;
-                if(str.size() > longest_word.size()){
-                    longest_word = str;
-                } else if(str.size() == longest_word.size() && str.compare(longest_word) < 0){
-                    longest_word = str;
+        for(int r = 0; r < 4; r++){
+            for(int c = 0; c < 4; c++){
+                node* curr = root;
+                clear_visited();
+                string w_found = _dfs(b[r][c], root);
+                if(w_found != ""){
+                    words.insert(w_found);    
                 }
             }
         }
+        for(string str : words){
+            // cout << str << endl;
+            switch(str.size()){
+                case 3:
+                case 4:
+                    score += 1;
+                    break;
+                case 5:
+                    score += 2;
+                    break;
+                case 6:
+                    score += 3;
+                    break;
+                case 7:
+                    score += 5;
+                    break;
+                case 8:
+                    score += 11;
+                    break;
+            }
+            num_words++;
+            if(str.size() > longest_word.size()){
+                longest_word = str;
+            } else if(str.size() == longest_word.size() && str.compare(longest_word) < 0){
+                longest_word = str;
+            }
+        }
+            
         cout << score << " " << longest_word << " " << num_words << endl;
     }
 };
